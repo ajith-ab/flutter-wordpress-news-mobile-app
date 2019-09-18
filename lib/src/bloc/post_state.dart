@@ -19,19 +19,27 @@ class PostError extends PostState {
 class PostLoaded extends PostState {
   final List<Post> posts;
   final bool hasReachedMax;
+  final int page;
+  final int perPage;
 
   PostLoaded({
     this.posts,
     this.hasReachedMax,
-  }) : super([posts, hasReachedMax]);
+    this.page,
+    this.perPage
+  }) : super([posts, hasReachedMax,page,perPage]);
 
   PostLoaded copyWith({
     List<Post> posts,
     bool hasReachedMax,
+    int page,
+    int perPage,
   }) {
     return PostLoaded(
       posts: posts ?? this.posts,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      page: page ?? this.page,
+      perPage: perPage ?? this.perPage
     );
   }
 

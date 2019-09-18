@@ -14,7 +14,7 @@ class PostWidget extends StatelessWidget {
       //   style: TextStyle(fontSize: 10.0),
       // ),
       leading: new Image.network(
-        'https://picsum.photos/250?image=9',
+        post.image,
       ),
       title: Text(post.title),
       isThreeLine: true,

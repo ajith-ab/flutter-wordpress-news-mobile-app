@@ -34,18 +34,25 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     if (event is Fetch && !_hasReachedMax(currentState)) {
       try {
         if (currentState is PostUninitialized) {
-          final posts = await _fetchPosts(0, 20);
-          yield PostLoaded(posts: posts, hasReachedMax: false);
+          final page = 4;
+          final perPage = 10;
+          final posts = await _fetchPosts(perPage, page);
+          
+          yield PostLoaded(posts: posts, hasReachedMax: false,page:page,perPage: perPage);
           return;
         }
         if (currentState is PostLoaded) {
+          final page = (currentState as PostLoaded).page + 1;
+          final perPage = (currentState as PostLoaded).perPage;
           final posts =
-              await _fetchPosts((currentState as PostLoaded).posts.length, 20);
+              await _fetchPosts(perPage, page);
           yield posts.isEmpty
               ? (currentState as PostLoaded).copyWith(hasReachedMax: true)
               : PostLoaded(
                   posts: (currentState as PostLoaded).posts + posts,
                   hasReachedMax: false,
+                  page: page,
+                  perPage: perPage
                 );
         }
       } catch (_) {
@@ -57,16 +64,28 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   bool _hasReachedMax(PostState state) =>
       state is PostLoaded && state.hasReachedMax;
 
-  Future<List<Post>> _fetchPosts(int startIndex, int limit) async {
-    final response = await httpClient.get(
-        'https://jsonplaceholder.typicode.com/posts?_start=$startIndex&_limit=$limit');
+  Future<List<Post>> _fetchPosts(int perPage, int page) async {
+    final response = await httpClient.get('https://keralamirror.news/wp-json/wp/v2/posts?_embed&per_page=$perPage&page=$page');
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;
       return data.map((rawPost) {
+        String image = '';
+        try {
+          if(rawPost["_embedded"]["wp:featuredmedia"] != null && rawPost["_embedded"]["wp:featuredmedia"][0] != null && rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"] != null){
+              image = rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"];
+          }else{
+            image = 'https://picsum.photos/250?image=9';
+          }
+        } catch (e) {
+          print("exception"+ e.toString());
+          image = 'https://picsum.photos/250?image=9';
+        }
+        print(rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"]);
         return Post(
           id: rawPost['id'],
-          title: rawPost['title'],
-          body: rawPost['body'],
+          title: rawPost['title']['rendered'],
+          body: rawPost['content']['rendered'],
+          image: image
         );
       }).toList();
     } else {
