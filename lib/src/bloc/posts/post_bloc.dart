@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
@@ -35,7 +34,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       try {
         if (currentState is PostUninitialized) {
           final page = 4;
-          final perPage = 10;
+          final perPage = 15;
           final posts = await _fetchPosts(perPage, page);
           
           yield PostLoaded(posts: posts, hasReachedMax: false,page:page,perPage: perPage);
@@ -69,18 +68,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body) as List;
       return data.map((rawPost) {
-        String image = '';
-        try {
-          if(rawPost["_embedded"]["wp:featuredmedia"] != null && rawPost["_embedded"]["wp:featuredmedia"][0] != null && rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"] != null){
-              image = rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"];
-          }else{
-            image = 'https://picsum.photos/250?image=9';
-          }
-        } catch (e) {
-          print("exception"+ e.toString());
-          image = 'https://picsum.photos/250?image=9';
-        }
-        print(rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"]);
+        String image = Post.imageUrl(rawPost);
         return Post(
           id: rawPost['id'],
           title: rawPost['title']['rendered'],

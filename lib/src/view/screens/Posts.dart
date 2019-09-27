@@ -42,10 +42,11 @@ class _PostState extends State<Post> {
                   ? BottomLoader()
                   : PostWidget(post: state.posts[index]);
             },
+            controller: _scrollController,
             itemCount: state.hasReachedMax
                 ? state.posts.length
                 : state.posts.length + 1,
-            controller: _scrollController,
+            
           );
         }
         return Center(
