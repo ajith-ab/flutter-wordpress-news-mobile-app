@@ -16,10 +16,10 @@ class Post extends Equatable {
      String image = 'https://picsum.photos/250?image=9';
         try {
           if(rawPost["_embedded"]["wp:featuredmedia"] != null && rawPost["_embedded"]["wp:featuredmedia"][0] != null && rawPost["_embedded"]["wp:featuredmedia"][0]["source_url"] != null && 
-          rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"] != null && rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["thumbnail"] != null &&
-          rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["thumbnail"]["source_url"] != null){
+          rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"] != null && rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["medium"] != null &&
+          rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["medium"]["source_url"] != null){
             
-              image = rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["thumbnail"]["source_url"];
+              image = rawPost["_embedded"]["wp:featuredmedia"][0]["media_details"]["sizes"]["medium"]["source_url"];
           }else{
             image = 'https://picsum.photos/250?image=9';
           }

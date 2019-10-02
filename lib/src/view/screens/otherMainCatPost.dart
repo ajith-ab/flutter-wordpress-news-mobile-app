@@ -6,12 +6,15 @@ import 'package:flutternews/src/view/widgets/BottomLoader.dart';
 import 'package:flutternews/src/view/widgets/post_list.dart';
 
 class OtherMainCatPost extends StatefulWidget {
+  final ScrollController _scrollController;
+  OtherMainCatPost(this._scrollController);
   @override
-  _OtherMainCatPostState createState() => _OtherMainCatPostState();
+  _OtherMainCatPostState createState() => _OtherMainCatPostState(this._scrollController);
 }
 
 class _OtherMainCatPostState extends State<OtherMainCatPost> with AutomaticKeepAliveClientMixin {
-    ScrollController _scrollController = new ScrollController();
+     ScrollController _scrollController;
+  _OtherMainCatPostState(this._scrollController);
 
 
   var posts = new List<Post>();
@@ -19,6 +22,8 @@ class _OtherMainCatPostState extends State<OtherMainCatPost> with AutomaticKeepA
   final bool hasReachedMax = false;
   int page = 1;
   final int perPage = 15;
+  bool infiniteLoading = true;
+  int loadingCount = 1;
 
  @override
   initState() {
@@ -35,7 +40,25 @@ class _OtherMainCatPostState extends State<OtherMainCatPost> with AutomaticKeepA
   @override
  Widget build(BuildContext context) {
     if (!isLoading) {
-      return  ListView.builder(
+      return MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                if (scrollNotification is ScrollEndNotification) {
+                  if (_scrollController.position.pixels ==
+                          _scrollController.position.maxScrollExtent &&
+                      loadingCount == 1) {
+                    setState(() {
+                      infiniteLoading = false;
+                      loadingCount = loadingCount + 1;
+                    });
+                    _onScroll();
+                  }
+                }
+                return true;
+              },
+              child: ListView.builder(
            shrinkWrap: true, // todo comment this out and check the result
            physics: ClampingScrollPhysics(), 
             itemBuilder: (BuildContext context, int index) {
@@ -46,8 +69,10 @@ class _OtherMainCatPostState extends State<OtherMainCatPost> with AutomaticKeepA
             itemCount: hasReachedMax
                 ? posts.length
                 : posts.length + 1,
-            controller: _scrollController,
-          );
+           // controller: _scrollController,
+          ),
+          ),
+      );
     } else {
       return Center(
           child: CircularProgressIndicator()
@@ -73,14 +98,15 @@ class _OtherMainCatPostState extends State<OtherMainCatPost> with AutomaticKeepA
         }).toList();
         isLoading = false;
         page = page + 1;
+        loadingCount = 1;
       });
     });
   }
 
     void _onScroll(){
-    if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
-      print("object");
-      _getUsers();
-    }
+      if(loadingCount == 2){
+        _getUsers();
+      } 
+    
   }
 }

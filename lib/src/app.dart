@@ -15,7 +15,7 @@ class NewsApp extends StatelessWidget {
          title: 'flutter news',
          debugShowCheckedModeBanner: false,
          theme: ThemeData(
-            primarySwatch: Colors.blue, primaryColor: Colors.indigo[900]),
+            primarySwatch: Colors.indigo, primaryColor: Colors.white),
          home:MultiBlocProvider(
            providers: [
              BlocProvider<PostBloc>(
